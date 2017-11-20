@@ -1,6 +1,7 @@
 import os
 import glob
 import sys
+import json
 import time
 import csv
 import numpy as np
@@ -45,9 +46,6 @@ def avg_value(x, lat, long):
     val = total / (len(lat) * len(long))
     return val
 
-def writeToFile():
-    pass
-
 def get_station_latlong(path):
     station = []
     with open(path, 'r') as file:
@@ -62,11 +60,11 @@ def create_data(file, station):
     data = {}
     for ir in dataIR:
         if(ir == 'IR08'):
-            nc_file = 'data/irdata/ir08nc/IR08' + file
+            nc_file = 'sample_data/irdata/ir08nc/IR08' + file
         if(ir == 'IR13'):
-            nc_file = 'data/irdata/ir13nc/IR13' + file
+            nc_file = 'sample_data/irdata/ir13nc/IR13' + file
         if(ir == 'IR15'):
-            nc_file = 'data/irdata/ir15nc/IR15' + file
+            nc_file = 'sample_data/irdata/ir15nc/IR15' + file
         for filename in glob.iglob(nc_file):
             filename = filename.replace('\\', '/')
             fileIR = filename
@@ -106,7 +104,7 @@ def create_data(file, station):
                     data[ir][date][hour][minute][latlong] = cal_val(latlong, fileIR, ir)
 
             #fileIR.close()
-        return data
+    return data
 
 def cal_val(latlong, fileIR, ir):
     latlong = latlong.split(';')
@@ -127,8 +125,7 @@ def cal_val(latlong, fileIR, ir):
             return -1
     if(ir == 'IR15'):
         if('tbb15' in var):
-            tbb = var['tbb08']
-            avg_value()
+            tbb = var['tbb15']
         else:
             return -1
     
@@ -144,37 +141,19 @@ def cal_val(latlong, fileIR, ir):
         val = tbb[lat_idx][long_idx]
     return val
 
+def writeToJson(data, filename):
+    with open(filename, 'w') as file:
+        json.dump(data, file)
+
 def main():
-    fileIR_date = '_201709*'
-    station = get_station_latlong('data/rain/station.csv')
+    fileIR_date = '_201706*'
+    station = get_station_latlong('sample_data/rain/station.csv')
+    output = 'sample_data/input/dataset.json'
     start_time = time.time()
     data = create_data(fileIR_date, station)
     print("--- %s seconds ---" % (time.time() - start_time))
 
-    print(data['IR08']['20170930']['22']['00']['18.8065278;97.907694'])
-    #print(data['IR08']['20170930']['22']['00'])
-
-    #fileIR08 = Dataset('data/irdata/ir08nc/IR08_20170930_2200.nc', 'r')
-    #fileIR13 = Dataset('data/irdata/ir13nc/IR13_20170930_2200.nc', 'r')
-    #fileIR15 = Dataset('data/irdata/ir15nc/IR15_20170930_2200.nc', 'r')
-    #writeToFile()
-
-    #var08 = fileIR08.variables
-    #var13 = fileIR13.variables
-    #var15 = fileIR15.variables
-    #dim = fileIR13.dimensions
-
-    #list_lat = var['latitude'][:]
-    #list_long = var['longitude'][:]
-
-    #lat_idx = find_index(slat, list_lat, 'a')
-    #long_idx = find_index(slong, list_long, 'a')
-
-    #if isinstance(lat_idx, list):
-    #    tbb08 = avg_value(tbb08, lat_idx, long_idx)
-    #    tbb13 = avg_value(tbb13, lat_idx, long_idx)
-    #    tbb15 = avg_value(tbb15, lat_idx, long_idx)
+    writeToJson(data, output)
 
 if __name__ == "__main__":
     main()
-
