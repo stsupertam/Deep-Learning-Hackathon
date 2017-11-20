@@ -63,10 +63,9 @@ def map_inout(input_data, output_data):
 def writeToFile(X, y):
     X = np.array(X)
     y = np.array(y)
-    with h5py.File('sample_data/data_X.h5', 'w') as hf:
-        hf.create_dataset('input.h5', data=X)
-    with h5py.File('sample_data/data_y.h5', 'w') as hf:
-        hf.create_dataset('output.h5', data=y)
+    with h5py.File('sample_data/data.h5', 'w') as hf:
+        hf.create_dataset('input', data=X)
+        hf.create_dataset('output', data=y)
 
 def main():
     input_json = 'sample_data/input/dataset.json'
