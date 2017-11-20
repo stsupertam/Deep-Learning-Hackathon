@@ -1,4 +1,6 @@
 import json
+import numpy as np
+import h5py
 import csv
 
 def load_data(inp, out):
@@ -26,7 +28,6 @@ def map_inout(input_data, output_data):
             latlong = row[1] + ';' + row[2]
             timestamp = row[0].split(' ')
             date, hour, minute = get_time(timestamp)
-            #print('%s %s:%s %s' % (date, hour, minute, latlong))
             temp = []
             restart = False
             for item in ir:
@@ -36,9 +37,9 @@ def map_inout(input_data, output_data):
                         if(hour in input_data[item][date]):
                             for i in input_data[item][date][hour]:
                                 if(latlong in input_data[item][date][hour][i]):
-                                    temp2.append(input_data[item][date][hour][minute][latlong])
+                                    temp2.append(float(input_data[item][date][hour][minute][latlong]))
                                     if(len(temp2) < 6):
-                                        total = sum(map(int, temp2))
+                                        total = sum(map(float, temp2))
                                         missing = 6 - len(temp2)
                                         avg = total / len(temp2)
                                         for i in range(0, missing):
@@ -53,12 +54,19 @@ def map_inout(input_data, output_data):
                     restart = True
                 temp.extend(temp2)
             if(not restart):
-                print(len(temp))
                 X.append(temp)
-                y.append(row[-1])
+                y.append(float(row[-1]))
             else:
                 restart = False
     return X, y
+
+def writeToFile(X, y):
+    X = np.array(X)
+    y = np.array(y)
+    with h5py.File('sample_data/data_X.h5', 'w') as hf:
+        hf.create_dataset('input.h5', data=X)
+    with h5py.File('sample_data/data_y.h5', 'w') as hf:
+        hf.create_dataset('output.h5', data=y)
 
 def main():
     input_json = 'sample_data/input/dataset.json'
@@ -66,8 +74,7 @@ def main():
     input_data, output_data = load_data(input_json, output_csv)
 
     X, y = map_inout(input_data, output_data)
-    print(X)
-    print(y)
+    writeToFile(X, y)
 
 if __name__ == "__main__":
     main()
