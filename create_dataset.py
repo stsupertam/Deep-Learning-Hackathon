@@ -60,20 +60,23 @@ def map_inout(input_data, output_data):
                 restart = False
     return X, y
 
-def writeToFile(X, y):
+def writeToFile(X, y, output):
     X = np.array(X)
     y = np.array(y)
-    with h5py.File('sample_data/data.h5', 'w') as hf:
+    with h5py.File(output, 'w') as hf:
         hf.create_dataset('input', data=X)
         hf.create_dataset('output', data=y)
 
 def main():
-    input_json = 'sample_data/input/dataset.json'
-    output_csv = 'sample_data/rain/5-9_2017_edit_none.csv'
+    root = 'dataset'
+    input_json = root + '/input/dataset.json'
+    output_csv = root + '/output/5-9_2017_edit_none.csv'
     input_data, output_data = load_data(input_json, output_csv)
 
+    outputfile = root + '/data.h5'
+
     X, y = map_inout(input_data, output_data)
-    writeToFile(X, y)
+    writeToFile(X, y, outputfile)
 
 if __name__ == "__main__":
     main()

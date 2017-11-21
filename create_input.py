@@ -54,19 +54,20 @@ def get_station_latlong(path):
             station.append([row[1], row[2]])
     return station
 
-def create_data(file, station):
+def create_data(file, station, ir_loc):
     dataIR = ['IR08', 'IR13', 'IR15']
     nc_file = ''
     data = {}
     for ir in dataIR:
         if(ir == 'IR08'):
-            nc_file = 'sample_data/irdata/ir08nc/IR08' + file
+            nc_file = ir_loc[0] + file
         if(ir == 'IR13'):
-            nc_file = 'sample_data/irdata/ir13nc/IR13' + file
+            nc_file = ir_loc[1] + file
         if(ir == 'IR15'):
-            nc_file = 'sample_data/irdata/ir15nc/IR15' + file
+            nc_file = ir_loc[2] + file
         for filename in glob.iglob(nc_file):
-            filename = filename.replace('\\', '/')
+            if('\\' in filename):
+                filename = filename.replace('\\', '/')
             fileIR = filename
 
             filename = filename.split('/')[-1].replace('.nc', '')
@@ -147,10 +148,16 @@ def writeToJson(data, filename):
 
 def main():
     fileIR_date = '_201706*'
-    station = get_station_latlong('sample_data/rain/station.csv')
-    output = 'sample_data/input/dataset.json'
+    root = 'sample_data'
+
+    output = 'dataset/input/dataset.json'
+    ir_root = root + '/irdata/'
+
+    station = get_station_latlong(root + '/rain/station.csv')
+    ir_loc = [ir_root + 'ir08nc/IR08', ir_root + 'ir13nc/IR13', ir_root + 'ir15nc/IR15']
+
     start_time = time.time()
-    data = create_data(fileIR_date, station)
+    data = create_data(fileIR_date, station, ir_loc)
     print("--- %s seconds ---" % (time.time() - start_time))
 
     writeToJson(data, output)

@@ -1,6 +1,6 @@
 import h5py
 
-with h5py.File('sample_data/data.h5', 'r') as hf:
+with h5py.File('dataset/data.h5', 'r') as hf:
     X = hf['input'][:]
     y = hf['output'][:]
 
