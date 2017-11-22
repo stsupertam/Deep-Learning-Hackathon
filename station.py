@@ -1,6 +1,8 @@
+#!/opt/anaconda3/bin/python3.5m
+
 import csv
 
-with open('data/rain/station.csv', 'w') as file:
+with open('sample_data/rain/station.csv', 'w') as file:
     with open('data/rain/5-9_2017.csv', newline='') as f:
         reader = csv.reader(f, delimiter=',')
         w = []

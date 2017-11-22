@@ -1,5 +1,8 @@
+#!/opt/anaconda3/bin/python3.5m
+
 import json
 import numpy as np
+import time
 import h5py
 import csv
 
@@ -24,7 +27,7 @@ def map_inout(input_data, output_data):
     y = []
     ir = ['IR08', 'IR13', 'IR15']
     for row in output_data:
-        if(row[-1] != -1):
+        if(str(row[-1]) != '-1'):
             latlong = row[1] + ';' + row[2]
             timestamp = row[0].split(' ')
             date, hour, minute = get_time(timestamp)
@@ -35,17 +38,20 @@ def map_inout(input_data, output_data):
                 if(item in input_data):
                     if(date in input_data[item]):
                         if(hour in input_data[item][date]):
+                            j = 0
                             for i in input_data[item][date][hour]:
+                                j += 1
                                 if(latlong in input_data[item][date][hour][i]):
-                                    temp2.append(float(input_data[item][date][hour][minute][latlong]))
-                                    if(len(temp2) < 6):
-                                        total = sum(map(float, temp2))
-                                        missing = 6 - len(temp2)
-                                        avg = total / len(temp2)
-                                        for i in range(0, missing):
-                                            temp2.append(avg)
+                                    if(input_data[item][date][hour][i][latlong] != '--'):
+                                        temp2.append(float(input_data[item][date][hour][i][latlong]))
                                 else:
                                     restart = True
+                            if(len(temp2) < 6):
+                               total = sum(map(float, temp2))
+                               missing = 6 - len(temp2)
+                               avg = total / len(temp2)
+                               for i in range(0, missing):
+                                   temp2.append(avg)
                         else:
                             restart = True
                     else:
@@ -75,8 +81,10 @@ def main():
 
     outputfile = root + '/data.h5'
 
+    start_time = time.time()
     X, y = map_inout(input_data, output_data)
     writeToFile(X, y, outputfile)
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == "__main__":
     main()
