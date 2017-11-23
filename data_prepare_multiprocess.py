@@ -130,29 +130,37 @@ def writeToJson(data, filename):
     with open(filename, 'w') as file:
         json.dump(data, file)
 
-start_time = time.time()
-data = create_data(fileIR_date, station, ir_loc)
-print("--- %s seconds ---" % (time.time() - start_time))
-
-writeToJson(data, output)
-
-def processing():
-    pass
-def main():
-    fileIR_date = '_20170601_*'
-    root = 'data'
-
-    output = 'dataset/input/dataset1.json'
-    ir_root = root + '/irdata/'
-
-    station = get_station_index(root + '/rain/station_with_index2.csv')
-    ir_loc = [ir_root + 'ir08nc/IR08', ir_root + 'ir13nc/IR13', ir_root + 'ir15nc/IR15']
-
+def processing(fileIR_date, station, ir_loc, output, worker):
+    print('Worker %d is processing.' % worker)
     start_time = time.time()
     data = create_data(fileIR_date, station, ir_loc)
-    print("--- %s seconds ---" % (time.time() - start_time))
-
     writeToJson(data, output)
+
+def main():
+    root = 'data'
+    station = get_station_index(root + '/rain/station_with_index2.csv')
+
+    ir_root = root + '/irdata/'
+
+    select_fileIR = '_20170601_00'
+    output = 'dataset/test/dataset06'
+    jobs = []
+    start_time = time.time()
+    j = 10
+    for i in range(1,5):
+        fileIR_date = select_fileIR + str(j) + '*' 
+        _output = output + str(j) + '.json'
+        print('%s %s' % (fileIR_date, _output))
+        ir_loc = [ir_root + 'ir08nc/IR08', ir_root + 'ir13nc/IR13', ir_root + 'ir15nc/IR15']
+        j += 10
+        p = multiprocessing.Process(target=processing, args=(fileIR_date, station, ir_loc, _output, i))
+        jobs.append(p)
+        p.start()
+
+    for j in jobs:
+        j.join()
+        #processing(fileIR_date, station, ir_loc)
+    print('Finish job in : %s seconds' % (time.time() - start_time))
 
 if __name__ == "__main__":
     main()
