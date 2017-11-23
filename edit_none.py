@@ -1,3 +1,5 @@
+#!/opt/anaconda3/bin/python3.5m
+
 import csv
 
 new_file = open('sample_data/rain/5-9_2017_edit_none.csv','w')

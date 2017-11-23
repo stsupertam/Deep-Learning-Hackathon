@@ -6,6 +6,7 @@ import sys
 import json
 import time
 import csv
+import multiprocessing
 import numpy as np
 from netCDF4 import Dataset
 
@@ -129,6 +130,14 @@ def writeToJson(data, filename):
     with open(filename, 'w') as file:
         json.dump(data, file)
 
+start_time = time.time()
+data = create_data(fileIR_date, station, ir_loc)
+print("--- %s seconds ---" % (time.time() - start_time))
+
+writeToJson(data, output)
+
+def processing():
+    pass
 def main():
     fileIR_date = '_20170601_*'
     root = 'data'
