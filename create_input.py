@@ -119,9 +119,6 @@ def cal_val(lat, long, fileIR, ir):
         print(type(val))
     else:
         val = str(tbb[int(lat_idx)][int(long_idx)])
-    #if(val == '--'):
-    #    print('eiei')
-    #    val = -1
     fileIR.close()
     return val
 

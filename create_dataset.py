@@ -9,12 +9,19 @@ import glob
 
 def load_data(inp, out):
     output_data = []
-    with open(inp, 'r') as file:
-        input_data = json.load(file)
-    with open(out, 'r') as file:
-        output = csv.reader(file, delimiter=',')
-        for row in output:
-            output_data.append(row)
+    try:
+        with open(inp, 'r') as file:
+            input_data = json.load(file)
+    except Exception:
+        print('Input : %s error' % (inp))
+        input_data = {}
+    try:
+        with open(out, 'r') as file:
+            output = csv.reader(file, delimiter=',')
+            for row in output:
+                output_data.append(row)
+    except Exception:
+        print('Output : %s error' % (out))
     return input_data, output_data
 
 def get_time(timestamp):
@@ -26,7 +33,7 @@ def get_time(timestamp):
 def map_inout(input_data, output_data):
     X = []
     y = []
-    z = []
+    #z = []
     ir = ['IR08', 'IR13', 'IR15']
     for row in output_data:
         if(str(row[-1]) != '-1'):
@@ -48,7 +55,9 @@ def map_inout(input_data, output_data):
                                         temp2.append(float(input_data[item][date][hour][i][latlong]))
                                 else:
                                     restart = True
-                            if(len(temp2) < 6):
+                            if(len(temp2) == 0):
+                                restart = True
+                            elif(len(temp2) < 6):
                                total = sum(map(float, temp2))
                                missing = 6 - len(temp2)
                                avg = total / len(temp2)
@@ -64,39 +73,39 @@ def map_inout(input_data, output_data):
             if(not restart):
                 X.append(temp)
                 y.append(float(row[-1]))
-                z.append(row[:-1])
+                #z.append(row[:-1])
             else:
                 restart = False
-    return X, y, z
+    return X, y
 
-def writeToFile(X, y, z, output):
+def writeToFile(X, y, output):
     X = np.array(X)
     y = np.array(y)
-    z = np.array(z)
+    #z = np.array(z)
     with h5py.File(output, 'w') as hf:
         hf.create_dataset('input', data=X)
         hf.create_dataset('output', data=y)
-        hf.create_dataset('attribute', data=z)
+        #hf.create_dataset('attribute', data=z)
 
 def main():
     root = 'dataset'
-    input_json = root + '/input/dataset06*'
+    input_json = root + '/test/5*'
     output_csv = root + '/output/5-9_2017_edit_none.csv'
 
     X = []
     y = []
-    z = []
-    outputfile = root + '/data_2.h5'
+    #z = []
+    outputfile = root + '/data_5.h5'
 
     start_time = time.time()
     for input in glob.iglob(input_json):
         input_data, output_data = load_data(input, output_csv)
-        a, b, c = map_inout(input_data, output_data)
+        a, b = map_inout(input_data, output_data)
         X.extend(a)
         y.extend(b)
-        z.extend(c)
+        #z.extend(c)
 
-    #writeToFile(X, y, z, outputfile)
+    writeToFile(X, y, outputfile)
     print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == "__main__":
