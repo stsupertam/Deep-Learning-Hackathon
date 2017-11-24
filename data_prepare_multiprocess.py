@@ -117,12 +117,8 @@ def cal_val(lat, long, fileIR, ir):
 
     if(isinstance(lat_idx, list)):
         val = str(avg_value(tbb, lat_idx, long_idx))
-        print(type(val))
     else:
         val = str(tbb[int(lat_idx)][int(long_idx)])
-    #if(val == '--'):
-    #    print('eiei')
-    #    val = -1
     fileIR.close()
     return val
 
@@ -134,6 +130,7 @@ def processing(fileIR_date, station, ir_loc, output, worker):
     print('Worker %d is processing.' % worker)
     start_time = time.time()
     data = create_data(fileIR_date, station, ir_loc)
+    print('Worker %d Finish job in : %s seconds' % (worker, time.time() - start_time))
     writeToJson(data, output)
 
 def main():
@@ -142,25 +139,26 @@ def main():
 
     ir_root = root + '/irdata/'
 
-    select_fileIR = '_20170601_00'
-    output = 'dataset/test/dataset06'
+    select_fileIR = '_201706'
+    output = 'dataset/input/dataset06'
     jobs = []
     start_time = time.time()
-    j = 10
     for i in range(1,5):
-        fileIR_date = select_fileIR + str(j) + '*' 
-        _output = output + str(j) + '.json'
-        print('%s %s' % (fileIR_date, _output))
+        fileIR_date = select_fileIR + str(i) + '_*' 
+        _output = output + str(i) + '.json'
+        if(i < 10):
+            _output = output + '0' + str(i) + '.json'
+            fileIR_date = select_fileIR + '0' + str(i) + '_*' 
         ir_loc = [ir_root + 'ir08nc/IR08', ir_root + 'ir13nc/IR13', ir_root + 'ir15nc/IR15']
-        j += 10
         p = multiprocessing.Process(target=processing, args=(fileIR_date, station, ir_loc, _output, i))
         jobs.append(p)
         p.start()
 
     for j in jobs:
         j.join()
+        print('Finished' % (j))
         #processing(fileIR_date, station, ir_loc)
-    print('Finish job in : %s seconds' % (time.time() - start_time))
+    print('Worker %d Finish job in : %s seconds' % (worker, time.time() - start_time))
 
 if __name__ == "__main__":
     main()

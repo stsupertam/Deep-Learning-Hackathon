@@ -51,7 +51,7 @@ def map_inout(input_data, output_data):
                             for i in input_data[item][date][hour]:
                                 j += 1
                                 if(latlong in input_data[item][date][hour][i]):
-                                    if(input_data[item][date][hour][i][latlong] != '--'):
+                                    if(input_data[item][date][hour][i][latlong] != '--' or input_data[item][date][hour][i][latlong] != -1 or input_data != '-1'):
                                         temp2.append(float(input_data[item][date][hour][i][latlong]))
                                 else:
                                     restart = True
@@ -89,13 +89,13 @@ def writeToFile(X, y, output):
 
 def main():
     root = 'dataset'
-    input_json = root + '/test/5*'
+    input_json = root + '/test/9*'
     output_csv = root + '/output/5-9_2017_edit_none.csv'
 
     X = []
     y = []
     #z = []
-    outputfile = root + '/data_5.h5'
+    outputfile = root + '/data_9.h5'
 
     start_time = time.time()
     for input in glob.iglob(input_json):
